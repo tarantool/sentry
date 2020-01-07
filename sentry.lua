@@ -156,7 +156,11 @@ end
 
 
 local function capture_message(dsn, conf, msg, ...)
-    checks('string', 'table', 'string')
+    checks('?string', 'table', 'string')
+
+    if dsn == nil then
+        return true
+    end
 
     start()
 
@@ -173,7 +177,11 @@ local function capture_message(dsn, conf, msg, ...)
 end
 
 local function capture_exception(dsn, err, conf)
-    checks('string', 'table|cdata', '?table')
+    checks('?string', 'table|cdata', '?table')
+
+    if dsn == nil then
+        return true
+    end
 
     start()
 
@@ -199,7 +207,7 @@ local function capture_exception(dsn, err, conf)
 end
 
 local function sentry_pcall(dsn, ...)
-    checks('string')
+    checks('?string')
     local res, err = sentry_error:pcall(...)
 
     if err ~= nil then
