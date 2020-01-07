@@ -27,6 +27,55 @@ local function iso8601()
 end
 
 
+local function parse_traceback(traceback)
+    checks('?string')
+
+    if traceback == nil then
+        return nil
+    end
+
+    local lines = string.split(traceback, '\n')
+
+    local res = {}
+
+    for _, line in ipairs(lines) do
+        local place, fun = string.match(line, "^%s*(.*) in (.*)$")
+
+        if place ~= nil then
+            local file, line = string.match(place, "(.*):(.*):")
+
+            if file == nil then
+                file = string.match(place, "(.*):")
+            end
+
+            if line ~= nil then
+                line = tonumber(line)
+            end
+
+            local fun_name = string.match(fun, "function '(.*)'")
+
+            if fun_name == nil then
+                fun_name = string.match(fun, "function (.*)")
+
+                if fun_name == nil then
+                    fun_name = fun
+                end
+            end
+
+            table.insert(
+                res, 1,
+                {
+                    filename = file,
+                    ["function"] = fun_name,
+                    lineno = line,
+                }
+            )
+        end
+    end
+
+    return res
+end
+
 local function parse_host_port(protocol, host)
     local i = string.find(host, ":")
     if not i then
@@ -192,7 +241,7 @@ local function capture_exception(dsn, err, conf)
             exception = { {
                     type = err.class_name,
                     value = err.err,
-                    stacktrace = {frames=err.frames},
+                    stacktrace = {frames=parse_traceback(err.stack)},
             } },
         }
     else
