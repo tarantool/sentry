@@ -23,5 +23,5 @@ end
 -- This will return function's return value in 'res' on success,
 -- and on error it will report that error to Sentry, and return
 -- it in 'err'
-local res, err = sentry.pcall(my_function, 123)
+local res, err = sentry.pcall(dsn, my_function, 123)
 ```
